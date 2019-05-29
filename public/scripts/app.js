@@ -1,63 +1,202 @@
-"use strict";
+'use strict';
 
-var template = React.createElement(
-  "div",
-  null,
-  React.createElement(
-    "h1",
-    null,
-    "React APP"
-  ),
-  React.createElement(
-    "p",
-    null,
-    "Teste"
-  )
-);
-var userAct1 = {
-  title: "Titulo",
-  subtitle: "Sub-Titulo",
-  options: ["One", "Two"]
+var filtro = {
+  tag: '',
+  search: ''
+};
+/* Renderização da Nav Bar com limpeza dos filtros quando clicado em Todos Processo */
+var navBar = function navBar() {
+  return React.createElement(
+    'div',
+    { className: 'navbar' },
+    React.createElement(
+      'div',
+      { className: 'navbar-title' },
+      React.createElement(
+        'span',
+        null,
+        'Processos'
+      )
+    ),
+    React.createElement(
+      'div',
+      { className: "navbar-process " + (filtro.tag || filtro.search ? "" : "active"),
+        onClick: function onClick() {
+          filtro.tag = '';
+          filtro.search = '';
+          renderApp();
+        } },
+      React.createElement(
+        'svg',
+        { className: 'navbar-bookmarks', xmlns: 'http://www.w3.org/2000/svg', viewBox: '0 0 25 32' },
+        React.createElement('path', { d: 'M24.3 0v27.949l-4.051-2.025V32l-10.122-5.063L0 32V4.051h4.051V0zm-6.072 28.759V6.076H2.025v22.683l8.1-4.051zm4.051-4.051V2.025H6.076v2.026h14.177V23.7z' })
+      ),
+      dataJson.cards.length && React.createElement(
+        'div',
+        { className: 'navbar-process-total' },
+        React.createElement(
+          'span',
+          null,
+          'Todos os Processos: '
+        ),
+        React.createElement(
+          'span',
+          { className: 'navbar-process-number' },
+          dataJson.cards.length
+        )
+      )
+    ),
+    navBarTags()
+  );
+};
+/* Função que itera e atrela o array de 
+tags do obj criando um evento click para filtrar mais tarde na renderização do card */
+var navBarTags = function navBarTags() {
+  return React.createElement(
+    'div',
+    { className: 'navbar-tags' },
+    React.createElement(
+      'span',
+      { className: 'navbar-tags-title' },
+      'Etiquetas'
+    ),
+    dataJson.tags.map(function (tag) {
+      var tagColor = {
+        background: tag.background
+      };
+      return React.createElement(
+        'div',
+        { className: "navbar-tags-tag " + (filtro.tag == tag.id ? "active" : ""),
+          onClick: function onClick() {
+            filtro.tag = tag.id;
+            renderApp();
+          } },
+        React.createElement('span', { className: 'navbar-tags-tag-color', style: tagColor }),
+        React.createElement(
+          'span',
+          { className: 'navbar-tags-tag-name' },
+          tag.name
+        )
+      );
+    })
+  );
+};
+/* Função de busca que re-renderiza o app caso altere o valor, 
+filtrando assim na função de renderização do card */
+var searchBar = function searchBar() {
+  return React.createElement(
+    'div',
+    { className: 'app-body-search' },
+    React.createElement(
+      'svg',
+      { className: 'app-body-search-icon', xmlns: 'http://www.w3.org/2000/svg', viewBox: '0 0 32 32' },
+      React.createElement('path', { d: 'M.3 31.7a1.131 1.131 0 0 1-.3-.8c0-.1.2-.3.5-.7a15.361 15.361 0 0 1 1.3-1.4c.5-.6 1.2-1.2 1.9-1.9l2.2-2.2 2.2-2.2 2-2c.6-.6 1.2-1.1 1.6-1.6l.857-.856A10.951 10.951 0 0 1 10 11 11.012 11.012 0 0 1 21 0a10.925 10.925 0 0 1 7.778 3.222A10.924 10.924 0 0 1 32 11a10.924 10.924 0 0 1-3.222 7.778A10.925 10.925 0 0 1 21 22a10.951 10.951 0 0 1-7.042-2.556L1.7 31.7a.909.909 0 0 1-.7.3.779.779 0 0 1-.7-.3zM12 11a9.01 9.01 0 0 0 9 9 9.011 9.011 0 0 0 9-9 9.01 9.01 0 0 0-9-9 9.01 9.01 0 0 0-9 9z' })
+    ),
+    React.createElement('input', { className: 'app-body-search-bar', type: 'text',
+      name: 'search', placeholder: 'Buscar', onChange: function onChange(evt) {
+        filtro.search = evt.target.value;
+        renderApp();
+      } })
+  );
+};
+/* Função para atrelar as Partes ao card */
+var partesCard = function partesCard(card) {
+  return React.createElement(
+    'div',
+    { className: 'app-body-cards-card-partes' },
+    card.partes.ativa.name && React.createElement(
+      'span',
+      { className: 'app-body-cards-card-partes-ativa' },
+      React.createElement(
+        'svg',
+        { xmlns: 'http://www.w3.org/2000/svg', viewBox: '0 0 32 32' },
+        React.createElement('path', { d: 'M17.001 15h7v2h-7v7h-2v-7h-7v-2h7V8h2z' }),
+        React.createElement('path', { d: 'M16.001 32a15.894 15.894 0 0 1-11.313-4.686A15.894 15.894 0 0 1 .001 16 15.9 15.9 0 0 1 4.688 4.686 15.9 15.9 0 0 1 16.001 0a15.9 15.9 0 0 1 11.313 4.687A15.9 15.9 0 0 1 32.001 16a15.894 15.894 0 0 1-4.686 11.313A15.894 15.894 0 0 1 16.001 32zm0-30a14.016 14.016 0 0 0-14 14 14.016 14.016 0 0 0 14 14 14.016 14.016 0 0 0 14-14 14.016 14.016 0 0 0-14-14z' })
+      ),
+      card.partes.ativa.name
+    ),
+    card.partes.passiva.name && React.createElement(
+      'span',
+      { className: 'app-body-cards-card-partes-passiva' },
+      React.createElement(
+        'svg',
+        { xmlns: 'http://www.w3.org/2000/svg', viewBox: '0 0 32 32' },
+        React.createElement('path', { d: 'M7 15h18v2H7z' }),
+        React.createElement('path', { d: 'M16 0a15.894 15.894 0 0 1 11.313 4.686A15.894 15.894 0 0 1 32 16a15.9 15.9 0 0 1-4.687 11.314A15.9 15.9 0 0 1 16 32a15.9 15.9 0 0 1-11.313-4.687A15.9 15.9 0 0 1 0 16 15.894 15.894 0 0 1 4.686 4.687 15.894 15.894 0 0 1 16 0zm0 30a14.016 14.016 0 0 0 14-14A14.016 14.016 0 0 0 16 2 14.016 14.016 0 0 0 2 16a14.016 14.016 0 0 0 14 14z' })
+      ),
+      card.partes.passiva.name
+    )
+  );
+};
+/* Função para atrelar as Tarjas ao card */
+var getTarjasCard = function getTarjasCard(card) {
+  return React.createElement(
+    'div',
+    { className: 'app-body-cards-card-tarjas' },
+    card.tarja.map(function (tarjaTag) {
+      var stylesTarja = {
+        background: tarjaTag.background,
+        color: tarjaTag.color
+      };
+      return tarjaTag.name && React.createElement(
+        'span',
+        { className: 'app-body-cards-card-tarjas-tarja', style: stylesTarja },
+        tarjaTag.name
+      );
+    })
+  );
+};
+/* Corpo do App */
+var appProcess = function appProcess() {
+  return React.createElement(
+    'div',
+    { className: 'app-body' },
+    searchBar(),
+    React.createElement(
+      'div',
+      { className: 'app-body-cards' },
+      dataJson.cards.map(function (card) {
+        /* renderiza sem filtro */
+        if (!filtro.tag && !filtro.search) {
+          return renderCard(card);
+        }
+        /* renderiza com Tag + Busca */
+        else if (card.tag.filter(function (tagId) {
+            return filtro.tag == tagId;
+          }).length && (card.competencia.toLowerCase().includes(filtro.search) || card.classe.toLowerCase().includes(filtro.search) || card.assunto.toLowerCase().includes(filtro.search))) {
+            return renderCard(card);
+          }
+          /* renderiza apenas busca sem tag */
+          else if (!filtro.tag && (card.competencia.toLowerCase().includes(filtro.search) || card.classe.toLowerCase().includes(filtro.search) || card.assunto.toLowerCase().includes(filtro.search))) {
+              return renderCard(card);
+            }
+      })
+    )
+  );
 };
 
-var user = {
-  name: "João Pedro",
-  age: "22",
-  location: "Florianópolis"
+var renderCard = function renderCard(card) {
+  /* renderizar o card de processo */
+  return React.createElement(
+    'div',
+    { className: 'app-body-cards-card' },
+    partesCard(card),
+    card.classe && React.createElement(
+      'p',
+      null,
+      card.classe,
+      ' - ',
+      card.competencia
+    ),
+    card.numero && React.createElement(
+      'span',
+      null,
+      card.numero
+    ),
+    getTarjasCard(card)
+  );
 };
-
-var count = 0;
-
-var addOne = function addOne() {
-  count++;
-  renderCounter();
-};
-var subOne = function subOne() {
-  count--;
-  renderCounter();
-};
-
-var resetButton = function resetButton() {
-  count = 0;
-  renderCounter();
-};
-
-var templateAct1 = React.createElement(
-  "div",
-  null,
-  React.createElement(
-    "h1",
-    null,
-    userAct1.title
-  ),
-  userAct1.subtitle && React.createElement(
-    "p",
-    null,
-    userAct1.subtitle
-  ),
-  userAct1.options.length ? "Here are your options" : "No Options"
-);
-
+/* Objeto Data */
 var dataJson = {
   cards: [{
     id: "1",
@@ -997,38 +1136,18 @@ var dataJson = {
     id: 2,
     name: "Juiz"
   }]
-};
-
-var appRoot = document.getElementById("app");
-
-var renderCounter = function renderCounter() {
-  var templateTwo = React.createElement(
-    "div",
-    null,
-    React.createElement(
-      "h1",
-      null,
-      "Count: ",
-      count
-    ),
-    React.createElement(
-      "button",
-      { className: "button", onClick: addOne },
-      "+1"
-    ),
-    React.createElement(
-      "button",
-      { className: "button", onClick: subOne },
-      "-1"
-    ),
-    React.createElement(
-      "button",
-      { className: "button", onClick: resetButton },
-      "reset"
-    )
+  /* Raiz App */
+};var appRoot = document.getElementById("app");
+/* renderizado */
+var renderApp = function renderApp() {
+  var template = React.createElement(
+    'div',
+    { className: 'clearfix' },
+    navBar(),
+    appProcess()
   );
 
-  ReactDOM.render(templateTwo, appRoot);
+  ReactDOM.render(template, appRoot);
 };
 
-renderCounter();
+renderApp();

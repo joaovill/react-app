@@ -1,46 +1,161 @@
-const template = (
-  <div>
-    <h1>React APP</h1>
-    <p>Teste</p>
-  </div>
-)
-const userAct1 = {
-  title: "Titulo",
-  subtitle: "Sub-Titulo",
-  options: ["One", "Two"]
+let filtro = {
+  tag: '',
+  search: ''
+};
+/* Renderização da Nav Bar com limpeza dos filtros quando clicado em Todos Processo */
+const navBar = () => {
+  return (
+    <div className="navbar">
+      <div className="navbar-title">
+        <span>Processos</span>
+      </div>
+      <div className={"navbar-process " + (filtro.tag || filtro.search ? "" : "active")} 
+        onClick={ () => {
+          filtro.tag = ''
+          filtro.search = ''
+          renderApp()
+        }}>
+        <svg className="navbar-bookmarks" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 25 32"><path d="M24.3 0v27.949l-4.051-2.025V32l-10.122-5.063L0 32V4.051h4.051V0zm-6.072 28.759V6.076H2.025v22.683l8.1-4.051zm4.051-4.051V2.025H6.076v2.026h14.177V23.7z"/></svg>
+        {dataJson.cards.length 
+          && 
+        <div className="navbar-process-total">
+          <span>Todos os Processos: </span>
+          <span className="navbar-process-number">{dataJson.cards.length}
+          </span>
+        </div>}
+      </div>
+      {navBarTags()}
+    </div>
+  )
+}
+/* Função que itera e atrela o array de 
+tags do obj criando um evento click para filtrar mais tarde na renderização do card */
+const navBarTags = () => {
+  return(
+    <div className="navbar-tags">
+      <span className="navbar-tags-title">
+        Etiquetas
+      </span>
+      {dataJson.tags.map((tag) => {
+        let tagColor = {
+          background: tag.background
+        }
+        return (
+          <div className={"navbar-tags-tag " + (filtro.tag == tag.id ? "active" : "")} 
+            onClick={ () =>{
+              filtro.tag = tag.id;
+              renderApp();
+            } } >
+            <span className="navbar-tags-tag-color" style={tagColor}></span>
+            <span className="navbar-tags-tag-name">{tag.name}</span>
+          </div>
+        )
+      })}
+    </div>
+  )
+}
+/* Função de busca que re-renderiza o app caso altere o valor, 
+filtrando assim na função de renderização do card */
+const searchBar = () =>{
+  return (
+    <div className="app-body-search">
+      <svg className="app-body-search-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32"><path d="M.3 31.7a1.131 1.131 0 0 1-.3-.8c0-.1.2-.3.5-.7a15.361 15.361 0 0 1 1.3-1.4c.5-.6 1.2-1.2 1.9-1.9l2.2-2.2 2.2-2.2 2-2c.6-.6 1.2-1.1 1.6-1.6l.857-.856A10.951 10.951 0 0 1 10 11 11.012 11.012 0 0 1 21 0a10.925 10.925 0 0 1 7.778 3.222A10.924 10.924 0 0 1 32 11a10.924 10.924 0 0 1-3.222 7.778A10.925 10.925 0 0 1 21 22a10.951 10.951 0 0 1-7.042-2.556L1.7 31.7a.909.909 0 0 1-.7.3.779.779 0 0 1-.7-.3zM12 11a9.01 9.01 0 0 0 9 9 9.011 9.011 0 0 0 9-9 9.01 9.01 0 0 0-9-9 9.01 9.01 0 0 0-9 9z"/></svg>
+      <input className="app-body-search-bar" type="text" 
+      name="search" placeholder="Buscar" onChange={(evt) => {
+        filtro.search = evt.target.value
+        renderApp();
+      }}></input>
+    </div>
+  )
+}
+/* Função para atrelar as Partes ao card */
+const partesCard = (card) =>{
+  return (
+    <div className="app-body-cards-card-partes">
+      {card.partes.ativa.name 
+        && 
+        <span className="app-body-cards-card-partes-ativa">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32"><path d="M17.001 15h7v2h-7v7h-2v-7h-7v-2h7V8h2z"/><path d="M16.001 32a15.894 15.894 0 0 1-11.313-4.686A15.894 15.894 0 0 1 .001 16 15.9 15.9 0 0 1 4.688 4.686 15.9 15.9 0 0 1 16.001 0a15.9 15.9 0 0 1 11.313 4.687A15.9 15.9 0 0 1 32.001 16a15.894 15.894 0 0 1-4.686 11.313A15.894 15.894 0 0 1 16.001 32zm0-30a14.016 14.016 0 0 0-14 14 14.016 14.016 0 0 0 14 14 14.016 14.016 0 0 0 14-14 14.016 14.016 0 0 0-14-14z"/></svg>
+          {card.partes.ativa.name}
+        </span>
+      }
+      {card.partes.passiva.name 
+        && 
+        <span className="app-body-cards-card-partes-passiva">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32"><path d="M7 15h18v2H7z"/><path d="M16 0a15.894 15.894 0 0 1 11.313 4.686A15.894 15.894 0 0 1 32 16a15.9 15.9 0 0 1-4.687 11.314A15.9 15.9 0 0 1 16 32a15.9 15.9 0 0 1-11.313-4.687A15.9 15.9 0 0 1 0 16 15.894 15.894 0 0 1 4.686 4.687 15.894 15.894 0 0 1 16 0zm0 30a14.016 14.016 0 0 0 14-14A14.016 14.016 0 0 0 16 2 14.016 14.016 0 0 0 2 16a14.016 14.016 0 0 0 14 14z"/></svg>
+          {card.partes.passiva.name}
+        </span>
+      }
+    </div>
+  )
+}
+/* Função para atrelar as Tarjas ao card */
+const getTarjasCard = (card) =>{
+  return (
+    <div className="app-body-cards-card-tarjas">
+      {card.tarja.map( (tarjaTag) => {
+        let stylesTarja = {
+          background: tarjaTag.background,
+          color: tarjaTag.color
+        };
+        return ( 
+          tarjaTag.name && 
+          <span className="app-body-cards-card-tarjas-tarja" style={stylesTarja} >
+            {tarjaTag.name}
+          </span> 
+          )
+      })}
+    </div>
+  )
+}
+/* Corpo do App */
+const appProcess = () => {
+  return(
+    <div className="app-body">
+      {searchBar()}
+      <div className="app-body-cards">
+        {dataJson.cards.map((card) => {
+          /* renderiza sem filtro */
+          if(!filtro.tag && !filtro.search) {
+            return renderCard(card);
+          }
+          /* renderiza com Tag + Busca */ 
+          else if(
+            card.tag.filter( (tagId) => {
+              return filtro.tag == tagId
+            }).length 
+            && 
+            (card.competencia.toLowerCase().includes(filtro.search) || 
+             card.classe.toLowerCase().includes(filtro.search) || 
+             card.assunto.toLowerCase().includes(filtro.search))
+          ){
+            return renderCard(card)
+          }
+          /* renderiza apenas busca sem tag */
+          else if(!filtro.tag && (card.competencia.toLowerCase().includes(filtro.search) || 
+          card.classe.toLowerCase().includes(filtro.search) || 
+          card.assunto.toLowerCase().includes(filtro.search))){
+            return renderCard(card)
+          }
+        })}
+        </div>
+    </div>
+  )
 }
 
-const user = {
-  name: "João Pedro",
-  age: "22",
-  location: "Florianópolis"
+const renderCard = (card) => {
+  /* renderizar o card de processo */
+  return (
+    <div className="app-body-cards-card">
+      {partesCard(card)}
+      {card.classe && <p>{card.classe} - {card.competencia}</p>}
+      {card.numero && <span>{card.numero}</span>}
+      {getTarjasCard(card)}
+    </div>
+  )
 }
-
-let count = 0
-
-const addOne = () => {
-  count++
-  renderCounter()
-}
-const subOne = () => {
-  count--
-  renderCounter()
-}
-
-const resetButton = () => {
-  count = 0
-  renderCounter()
-}
-
-const templateAct1 = (
-  <div>
-    <h1>{userAct1.title}</h1>
-    {userAct1.subtitle && <p>{userAct1.subtitle}</p>}
-    {userAct1.options.length ? "Here are your options" : "No Options"}
-  </div>
-)
-
-const dataJson = {
+/* Objeto Data */
+let dataJson = {
   cards: [
     {
       id: "1",
@@ -1072,26 +1187,18 @@ const dataJson = {
     }
   ]
 }
-
+/* Raiz App */
 const appRoot = document.getElementById("app")
-
-const renderCounter = () => {
-  const templateTwo = (
-    <div>
-      <h1>Count: {count}</h1>
-      <button className="button" onClick={addOne}>
-        +1
-      </button>
-      <button className="button" onClick={subOne}>
-        -1
-      </button>
-      <button className="button" onClick={resetButton}>
-        reset
-      </button>
+/* renderizado */
+const renderApp = () => {
+  const template = (
+    <div className="clearfix">
+      {navBar()}
+      {appProcess()}
     </div>
   )
 
-  ReactDOM.render(templateTwo, appRoot)
+  ReactDOM.render(template, appRoot)
 }
 
-renderCounter()
+renderApp()
